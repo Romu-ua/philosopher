@@ -33,7 +33,7 @@ void	pthreads_init(t_shared *shared, int *is_miss_init)
 	i = 0;
 	while (i < n)
 	{
-		if (pthread_mutex_init(&shared->mtx[i++], NULL) != 0)
+		if (pthread_mutex_init(&shared->fork[i++], NULL) != 0)
 			*is_miss_init = 1;
 	}
 	if (pthread_mutex_init(&shared->mtx_fin_flags, NULL) != 0)
@@ -46,8 +46,8 @@ void	shared_cleanup(t_shared *shared)
 {
 	if (!shared)
 		return ;
-	if (shared->mtx)
-		free(shared->mtx);
+	if (shared->fork)
+		free(shared->fork);
 	if (shared->fin_flags)
 		free(shared->fin_flags);
 	free(shared);
@@ -66,8 +66,8 @@ t_shared	*shared_init(int argc, char **argv, int *is_miss_init)
 	}
 	atois_init(shared, argc, argv);
 	n = shared->number_of_philosophers;
-	shared->mtx = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) * n);
-	if (!shared->mtx)
+	shared->fork = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) * n);
+	if (!shared->fork)
 		util_return(is_miss_init, shared);
 	pthreads_init(shared, is_miss_init);
 	if (*is_miss_init)

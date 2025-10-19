@@ -29,7 +29,7 @@ typedef struct s_shared
 	int				time_to_eat;
 	int				time_to_sleep;
 	int				number_of_times_each_philosopher_must_eat;
-	pthread_mutex_t	*mtx;
+	pthread_mutex_t	*fork;
 	int				is_die;
 	int				*fin_flags;
 	pthread_mutex_t	mtx_fin_flags;
@@ -61,4 +61,11 @@ void		destory(t_args *args, pthread_t *th);
 void		*util_return(int *is_miss_init, t_shared *shared);
 void		*cleanup_return(t_shared *shared);
 void		shared_cleanup(t_shared *shared);
+char		*ft_itoa(int n);
+size_t		ft_strlen(const char *s);
+char		*ft_strdup(const char *s);
+
+void		printf_wrap(char *str, void *args);
+
+void		register_last_eat_ts(t_args *a);
 #endif
