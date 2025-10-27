@@ -12,6 +12,41 @@
 
 #include "philo.h"
 
+int	is_space(int c)
+{
+	return (c == ' ' || c == '\t' || c == '\n'
+		|| c == '\v' || c == '\f' || c == '\r');
+}
+
+int	parse_positive_int_strict(char *s, int *out)
+{
+	long long	val;
+	int			digits;
+
+	while (*s && is_space(*s))
+		s++;
+	if (*s < '0' || *s > '9')
+		return (-1);
+	val = 0;
+	digits = 0;
+	while (*s >= '0' && *s <= '9')
+	{
+		val = val * 10 + (*s - '0');
+		if (val > INT_MAX)
+			return (-1);
+		s++;
+		digits++;
+	}
+	while (*s && is_space(*s))
+		s++;
+	if (*s != '\0')
+		return (-1);
+	if (digits == 0 || val <= 0)
+		return (-1);
+	*out = (int)val;
+	return (0);
+}
+
 void	make_thread(t_args *args, pthread_t *th, t_shared *shared)
 {
 	int			i;
@@ -36,24 +71,16 @@ void	make_thread(t_args *args, pthread_t *th, t_shared *shared)
 int	input_check(int argc, char **argv)
 {
 	int	i;
-	int	nbr;
+	int	tmp;
 
 	if (argc > 6 || argc < 5)
 		return (-1);
 	i = 1;
-	while (i < argc)
-	{
-		nbr = ft_atoi(argv[i]);
-		if (nbr <= 0)
+	while (i <= 4)
+		if (parse_positive_int_strict(argv[i++], &tmp) != 0)
 			return (-1);
-		i++;
-	}
-	if (argc == 6)
-	{
-		nbr = ft_atoi(argv[5]);
-		if (nbr < 0)
-			return (-1);
-	}
+	if (argc == 6 && parse_positive_int_strict(argv[5], &tmp) != 0)
+		return (-1);
 	return (0);
 }
 

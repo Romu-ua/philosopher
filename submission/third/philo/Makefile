@@ -2,9 +2,10 @@ CC = cc
 CFLAGS = -Wall -Werror -Wextra -pthread
 
 TARGET = philo
-SRCS = die_worker.c eat.c philo.c sleep.c stop.c think.c worker.c \
-		ft_atoi.c destroy.c args_init.c shared_init.c util.c \
-		ft_atoi.c ft_itoa.c ft_strdup.c ft_strlen.c printf_wrap.c worker_util.c urgent.c
+SRCS = args_init.c destroy.c ft_atoi.c ft_itoa.c ft_strdup.c ft_strlen.c \
+		input_check.c main.c make_thread.c monitor.c odd_case.c ph_eat.c \
+		ph_sleep.c ph_think.c printf_wrap.c shared_init.c th_init.c \
+		urgent.c utils.c worker.c stop.c
 OBJS = $(SRCS:%.c=%.o) 
 
 all: $(TARGET)

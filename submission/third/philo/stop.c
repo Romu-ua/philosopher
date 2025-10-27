@@ -1,33 +1,27 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   think.c                                            :+:      :+:    :+:   */
+/*   stop.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: hyamamot <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/10/12 17:25:50 by hyamamot          #+#    #+#             */
-/*   Updated: 2025/10/12 17:25:51 by hyamamot         ###   ########.fr       */
+/*   Created: 2025/10/24 19:41:51 by hyamamot          #+#    #+#             */
+/*   Updated: 2025/10/24 19:41:52 by hyamamot         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philo.h"
+#include "main.h"
 
-int	think(void *args)
+int	stop(void *args)
 {
-	t_args			*a;
-	struct timeval	curr;
-	int				ts;
+	t_args	*a;
+	int		flag;
 
+	flag = 0;
 	a = (t_args *)args;
-	pthread_mutex_lock(&a->shared->mtx_printf);
-	if (stop(args))
-	{
-		pthread_mutex_unlock(&a->shared->mtx_printf);
-		return (1);
-	}
-	gettimeofday(&curr, NULL);
-	ts = timestamp_ms(a->shared->start, curr);
-	printf("%d %d is thinking\n", ts, a->tid + 1);
-	pthread_mutex_unlock(&a->shared->mtx_printf);
-	return (0);
+	pthread_mutex_lock(&a->mtx_last_eat_ts);
+	if (a->shared->is_die)
+		flag = 1;
+	pthread_mutex_unlock(&a->mtx_last_eat_ts);
+	return (flag);
 }

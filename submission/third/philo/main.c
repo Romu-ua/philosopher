@@ -1,33 +1,36 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   think.c                                            :+:      :+:    :+:   */
+/*   philo.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: hyamamot <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/10/12 17:25:50 by hyamamot          #+#    #+#             */
-/*   Updated: 2025/10/12 17:25:51 by hyamamot         ###   ########.fr       */
+/*   Created: 2025/10/23 15:43:55 by hyamamot          #+#    #+#             */
+/*   Updated: 2025/10/23 15:43:56 by hyamamot         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philo.h"
+#include "main.h"
 
-int	think(void *args)
+int	main(int argc, char **argv)
 {
-	t_args			*a;
-	struct timeval	curr;
-	int				ts;
+	t_shared	*shared;
+	pthread_t	*th;
+	t_args		*args;
+	int			is_miss_init;
 
-	a = (t_args *)args;
-	pthread_mutex_lock(&a->shared->mtx_printf);
-	if (stop(args))
+	if (input_check(argc, argv))
+		return (1);
+	is_miss_init = 0;
+	shared = shared_init(argc, argv, &is_miss_init);
+	th = th_init(shared, &is_miss_init);
+	args = args_init(shared, &is_miss_init);
+	if (!args || is_miss_init)
 	{
-		pthread_mutex_unlock(&a->shared->mtx_printf);
+		destory(args, th);
 		return (1);
 	}
-	gettimeofday(&curr, NULL);
-	ts = timestamp_ms(a->shared->start, curr);
-	printf("%d %d is thinking\n", ts, a->tid + 1);
-	pthread_mutex_unlock(&a->shared->mtx_printf);
+	make_thread(args, th, shared);
+	destory(args, th);
 	return (0);
 }

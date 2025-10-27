@@ -1,42 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   sleep.c                                            :+:      :+:    :+:   */
+/*   printf_wrap.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: hyamamot <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/10/12 17:25:39 by hyamamot          #+#    #+#             */
-/*   Updated: 2025/10/12 17:25:40 by hyamamot         ###   ########.fr       */
+/*   Created: 2025/10/24 19:24:12 by hyamamot          #+#    #+#             */
+/*   Updated: 2025/10/24 19:24:14 by hyamamot         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philo.h"
+#include "main.h"
 
-long long	now_ts(void)
-{
-	struct timeval	tv;
-	long long		now;
-
-	gettimeofday(&tv, NULL);
-	now = (long long)tv.tv_sec * 1000000 + (long long)tv.tv_usec;
-	return (now);
-}
-
-void	ft_msleep(int ms)
-{
-	const long long	end = now_ts() + (long long)ms * 1000;
-
-	while (now_ts() < end)
-	{
-		usleep(10);
-	}
-}
-
-int	philo_sleep(void *args)
+int	printf_wrap(char *str, void *args)
 {
 	t_args			*a;
+	char			*output;
 	struct timeval	curr;
-	int				ts;
 
 	a = (t_args *)args;
 	pthread_mutex_lock(&a->shared->mtx_printf);
@@ -45,10 +25,17 @@ int	philo_sleep(void *args)
 		pthread_mutex_unlock(&a->shared->mtx_printf);
 		return (1);
 	}
+	pthread_mutex_lock(&a->mtx_last_eat_ts);
 	gettimeofday(&curr, NULL);
-	ts = timestamp_ms(a->shared->start, curr);
-	printf("%d %d is sleeping\n", ts, a->tid + 1);
+	*(a->last_eat_ts) = curr;
+	pthread_mutex_unlock(&a->mtx_last_eat_ts);
+	output = ft_itoa(timestamp_ms(a->shared->start, curr));
+	printf("%s ", output);
+	free(output);
+	output = ft_itoa(a->tid + 1);
+	printf("%s ", output);
+	free(output);
+	printf("%s\n", str);
 	pthread_mutex_unlock(&a->shared->mtx_printf);
-	ft_msleep(a->shared->time_to_sleep);
 	return (0);
 }

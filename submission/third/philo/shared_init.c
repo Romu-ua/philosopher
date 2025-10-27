@@ -1,18 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   init.c                                             :+:      :+:    :+:   */
+/*   shared_init.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: hyamamot <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/10/13 18:36:18 by hyamamot          #+#    #+#             */
-/*   Updated: 2025/10/13 18:36:18 by hyamamot         ###   ########.fr       */
+/*   Created: 2025/10/24 19:24:25 by hyamamot          #+#    #+#             */
+/*   Updated: 2025/10/24 19:24:26 by hyamamot         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philo.h"
+#include "main.h"
 
-void	atois_init(t_shared *shared, int argc, char **argv)
+void	input_init(t_shared *shared, int argc, char **argv)
 {
 	shared->number_of_philosophers = ft_atoi(argv[1]);
 	shared->time_to_die = ft_atoi(argv[2]);
@@ -24,12 +24,15 @@ void	atois_init(t_shared *shared, int argc, char **argv)
 		shared->number_of_times_each_philosopher_must_eat = -1;
 }
 
-void	pthreads_init(t_shared *shared, int *is_miss_init)
+void	pthread_init(t_shared *shared, int *is_miss_init)
 {
 	int	i;
 	int	n;
 
 	n = shared->number_of_philosophers;
+	shared->fork = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) * n);
+	if (!shared->fork)
+		return ;
 	i = 0;
 	while (i < n)
 	{
@@ -46,24 +49,15 @@ void	pthreads_init(t_shared *shared, int *is_miss_init)
 		*is_miss_init = 1;
 }
 
-void	shared_cleanup(t_shared *shared)
+void	block_init(t_shared *shared)
 {
-	if (!shared)
-		return ;
-	if (shared->fork)
-		free(shared->fork);
-	if (shared->fin_flags)
-		free(shared->fin_flags);
-	free(shared);
-}
+	int	n;
 
-void	block_init(t_shared *shared, int n)
-{
+	n = shared->number_of_philosophers;
 	if (n % 2 == 1)
 		shared->blocked_tid = 0;
 	else
 		shared->blocked_tid = -1;
-	shared->urgent_tid = -1;
 }
 
 t_shared	*shared_init(int argc, char **argv, int *is_miss_init)
@@ -77,20 +71,19 @@ t_shared	*shared_init(int argc, char **argv, int *is_miss_init)
 		*is_miss_init = 1;
 		return (NULL);
 	}
-	atois_init(shared, argc, argv);
-	n = shared->number_of_philosophers;
-	shared->fork = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) * n);
-	if (!shared->fork)
-		util_return(is_miss_init, shared);
-	pthreads_init(shared, is_miss_init);
+	input_init(shared, argc, argv);
+	pthread_init(shared, is_miss_init);
 	if (*is_miss_init)
-		return (cleanup_return(shared));
+		return (shared);
+	n = shared->number_of_philosophers;
 	shared->is_die = 0;
 	shared->fin_flags = (int *)malloc(sizeof(int) * n);
 	if (!shared->fin_flags)
-		return (util_return(is_miss_init, shared));
+		*is_miss_init = 1;
+	memset(shared->fin_flags, 0, n * sizeof(int));
 	if (gettimeofday(&shared->start, NULL))
-		return (util_return(is_miss_init, shared));
-	block_init(shared, n);
+		*is_miss_init = 1;
+	block_init(shared);
+	shared->urgent_tid = -1;
 	return (shared);
 }

@@ -1,38 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   sleep.c                                            :+:      :+:    :+:   */
+/*   ph_sleep.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: hyamamot <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/10/12 17:25:39 by hyamamot          #+#    #+#             */
-/*   Updated: 2025/10/12 17:25:40 by hyamamot         ###   ########.fr       */
+/*   Created: 2025/10/24 19:23:56 by hyamamot          #+#    #+#             */
+/*   Updated: 2025/10/24 19:23:57 by hyamamot         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philo.h"
+#include "main.h"
 
-long long	now_ts(void)
-{
-	struct timeval	tv;
-	long long		now;
-
-	gettimeofday(&tv, NULL);
-	now = (long long)tv.tv_sec * 1000000 + (long long)tv.tv_usec;
-	return (now);
-}
-
-void	ft_msleep(int ms)
-{
-	const long long	end = now_ts() + (long long)ms * 1000;
-
-	while (now_ts() < end)
-	{
-		usleep(10);
-	}
-}
-
-int	philo_sleep(void *args)
+int	ph_sleep(void *args)
 {
 	t_args			*a;
 	struct timeval	curr;

@@ -5,22 +5,24 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: hyamamot <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/10/12 17:25:46 by hyamamot          #+#    #+#             */
-/*   Updated: 2025/10/12 17:25:46 by hyamamot         ###   ########.fr       */
+/*   Created: 2025/10/23 15:44:14 by hyamamot          #+#    #+#             */
+/*   Updated: 2025/10/23 15:44:15 by hyamamot         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef PHILO_H
-# define PHILO_H
+#ifndef MAIN_H
+# define MAIN_H
 
-# include <pthread.h>
-# include <sys/time.h>
 # include <limits.h>
+# include <stdbool.h>
 # include <stdio.h>
 # include <stdlib.h>
 # include <time.h>
+# include <string.h>
+
+# include <pthread.h>
+# include <sys/time.h>
 # include <unistd.h>
-# include <stdbool.h>
 
 typedef struct s_shared
 {
@@ -49,7 +51,7 @@ typedef struct s_args
 	struct timeval	*last_eat_ts;
 }	t_args;
 
-typedef struct s_tmp
+typedef struct s_urgent
 {
 	struct timeval	now;
 	int				i;
@@ -59,33 +61,48 @@ typedef struct s_tmp
 	int				urgent;
 	int				sated;
 	int				ms;
-}	t_tmp;
+}	t_urgent;
 
-void		*worker(void *args);
-void		*die_worker(void *args);
-int			stop(void *args);
-void		ft_msleep(int ms);
-int			timestamp_ms(struct timeval start, struct timeval curr);
-void		eat(void *args);
-int			think(void *args);
-int			philo_sleep(void *args);
-int			ft_atoi(const char *nptr);
+// input_check.c
+int			input_check(int argc, char **argv);
+
+// shared_init.c
 t_shared	*shared_init(int argc, char **argv, int *is_miss_init);
+
+// th_init.c
+pthread_t	*th_init(t_shared *shared, int *is_miss_init);
+
+// args_init.c
 t_args		*args_init(t_shared *shared, int *is_miss_init);
-void		th_init(t_shared *shared, pthread_t **th, int *is_miss_init);
+
+// make_thread.c
+void		make_thread(t_args *args, pthread_t *th, t_shared *shared);
+
+// destroy.c
 void		destory(t_args *args, pthread_t *th);
-void		*util_return(int *is_miss_init, t_shared *shared);
-void		*cleanup_return(t_shared *shared);
-void		shared_cleanup(t_shared *shared);
-char		*ft_itoa(int n);
-size_t		ft_strlen(const char *s);
-char		*ft_strdup(const char *s);
-void		printf_wrap(char *str, void *args);
-void		register_last_eat_ts(t_args *a);
-int			wait_eat(void *args);
-int			only_one(void *args);
-int			wait_favor_urgent(void *args);
+
+// utils.c
+int			timestamp_ms(struct timeval start, struct timeval curr);
+void		ft_msleep(int ms);
+
+// worker.c
+void		*worker(void *args);
+
+// monitor.c
+void		*monitor(void *args);
 void		update_priority(t_args *a);
-int			edge_case(void *args);
-void		fin_flags_up(t_args *a);
+int			stop(void *args);
+int			printf_wrap(char *str, void *args);
+
+char		*ft_itoa(int n);
+int			ft_atoi(const char *nptr);
+
+int			ph_think(void *args);
+int			odd_case(void *args);
+int			ph_eat(void *args);
+int			ph_sleep(void *args);
+
+char		*ft_strdup(const char *s);
+size_t		ft_strlen(const char *s);
+int			stop(void *args);
 #endif

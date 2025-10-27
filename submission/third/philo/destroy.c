@@ -1,33 +1,43 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   think.c                                            :+:      :+:    :+:   */
+/*   destroy.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: hyamamot <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/10/12 17:25:50 by hyamamot          #+#    #+#             */
-/*   Updated: 2025/10/12 17:25:51 by hyamamot         ###   ########.fr       */
+/*   Created: 2025/10/24 19:23:12 by hyamamot          #+#    #+#             */
+/*   Updated: 2025/10/24 19:23:13 by hyamamot         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philo.h"
+#include "main.h"
 
-int	think(void *args)
+void	args_free(t_args *args, int n)
 {
-	t_args			*a;
-	struct timeval	curr;
-	int				ts;
+	int	i;
 
-	a = (t_args *)args;
-	pthread_mutex_lock(&a->shared->mtx_printf);
-	if (stop(args))
+	i = 0;
+	while (i < n)
 	{
-		pthread_mutex_unlock(&a->shared->mtx_printf);
-		return (1);
+		if (args[i].last_eat_ts)
+			free(args[i].last_eat_ts);
+		pthread_mutex_destroy(&args[i].mtx_last_eat_ts);
+		i++;
 	}
-	gettimeofday(&curr, NULL);
-	ts = timestamp_ms(a->shared->start, curr);
-	printf("%d %d is thinking\n", ts, a->tid + 1);
-	pthread_mutex_unlock(&a->shared->mtx_printf);
-	return (0);
+}
+
+void	destory(t_args *args, pthread_t *th)
+{
+	t_shared	*shared;
+	int			n;
+
+	if (!args)
+	{
+		if (th)
+			free(th);
+		return ;
+	}
+	shared = args->shared;
+	n = shared->number_of_philosophers;
+	args_free(args, n);
 }

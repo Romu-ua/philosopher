@@ -1,16 +1,28 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   sleep.c                                            :+:      :+:    :+:   */
+/*   utils.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: hyamamot <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/10/12 17:25:39 by hyamamot          #+#    #+#             */
-/*   Updated: 2025/10/12 17:25:40 by hyamamot         ###   ########.fr       */
+/*   Created: 2025/10/24 19:24:50 by hyamamot          #+#    #+#             */
+/*   Updated: 2025/10/24 19:24:50 by hyamamot         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philo.h"
+#include "main.h"
+
+int	timestamp_ms(struct timeval start, struct timeval curr)
+{
+	int		diff;
+	long	curr_ms;
+	long	start_ms;
+
+	start_ms = start.tv_sec * 1000000 + start.tv_usec;
+	curr_ms = curr.tv_sec * 1000000 + curr.tv_usec;
+	diff = curr_ms - start_ms;
+	return ((int)(diff / 1000));
+}
 
 long long	now_ts(void)
 {
@@ -30,25 +42,4 @@ void	ft_msleep(int ms)
 	{
 		usleep(10);
 	}
-}
-
-int	philo_sleep(void *args)
-{
-	t_args			*a;
-	struct timeval	curr;
-	int				ts;
-
-	a = (t_args *)args;
-	pthread_mutex_lock(&a->shared->mtx_printf);
-	if (stop(args))
-	{
-		pthread_mutex_unlock(&a->shared->mtx_printf);
-		return (1);
-	}
-	gettimeofday(&curr, NULL);
-	ts = timestamp_ms(a->shared->start, curr);
-	printf("%d %d is sleeping\n", ts, a->tid + 1);
-	pthread_mutex_unlock(&a->shared->mtx_printf);
-	ft_msleep(a->shared->time_to_sleep);
-	return (0);
 }

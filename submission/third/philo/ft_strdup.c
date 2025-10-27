@@ -1,33 +1,32 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   think.c                                            :+:      :+:    :+:   */
+/*   ft_strdup.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: hyamamot <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/10/12 17:25:50 by hyamamot          #+#    #+#             */
-/*   Updated: 2025/10/12 17:25:51 by hyamamot         ###   ########.fr       */
+/*   Created: 2025/10/27 12:21:14 by hyamamot          #+#    #+#             */
+/*   Updated: 2025/10/27 12:21:15 by hyamamot         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philo.h"
+#include "main.h"
 
-int	think(void *args)
+char	*ft_strdup(const char *s)
 {
-	t_args			*a;
-	struct timeval	curr;
-	int				ts;
+	size_t	len;
+	size_t	i;
+	char	*dest;
 
-	a = (t_args *)args;
-	pthread_mutex_lock(&a->shared->mtx_printf);
-	if (stop(args))
+	len = ft_strlen(s) + 1;
+	dest = (char *)malloc(sizeof(char) * len);
+	if (dest == NULL)
+		return (NULL);
+	i = 0;
+	while (i < len)
 	{
-		pthread_mutex_unlock(&a->shared->mtx_printf);
-		return (1);
+		dest[i] = s[i];
+		i++;
 	}
-	gettimeofday(&curr, NULL);
-	ts = timestamp_ms(a->shared->start, curr);
-	printf("%d %d is thinking\n", ts, a->tid + 1);
-	pthread_mutex_unlock(&a->shared->mtx_printf);
-	return (0);
+	return (dest);
 }

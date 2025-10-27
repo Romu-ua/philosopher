@@ -43,6 +43,8 @@ void	safe_shared_free(t_shared *shared)
 		return ;
 	safe_destroy(&shared->mtx_printf);
 	safe_destroy(&shared->mtx_fin_flags);
+	safe_destroy(&shared->mtx_blocked);
+	safe_destroy(&shared->mtx_urgent);
 	if (shared->fork)
 	{
 		n = shared->number_of_philosophers;

@@ -34,3 +34,25 @@ void	th_init(t_shared *shared, pthread_t **th, int *is_miss_init)
 	if (!*th)
 		*is_miss_init = 1;
 }
+
+int	timestamp_ms(struct timeval start, struct timeval curr)
+{
+	int		diff;
+	long	curr_ms;
+	long	start_ms;
+
+	start_ms = start.tv_sec * 1000000 + start.tv_usec;
+	curr_ms = curr.tv_sec * 1000000 + curr.tv_usec;
+	diff = curr_ms - start_ms;
+	return ((int)(diff / 1000));
+}
+
+void	register_last_eat_ts(t_args *a)
+{
+	struct timeval	timestamp;
+
+	pthread_mutex_lock(&a->mtx_last_eat_ts);
+	gettimeofday(&timestamp, NULL);
+	*(a->last_eat_ts) = timestamp;
+	pthread_mutex_unlock(&a->mtx_last_eat_ts);
+}

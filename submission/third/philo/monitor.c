@@ -1,18 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   die_worker.c                                       :+:      :+:    :+:   */
+/*   monitor.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: hyamamot <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/10/12 17:25:27 by hyamamot          #+#    #+#             */
-/*   Updated: 2025/10/12 17:25:28 by hyamamot         ###   ########.fr       */
+/*   Created: 2025/10/24 19:23:30 by hyamamot          #+#    #+#             */
+/*   Updated: 2025/10/24 19:23:31 by hyamamot         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philo.h"
+#include "main.h"
 
-int	all_finished(t_shared *shared)
+int	all_done(t_shared *shared)
 {
 	int	i;
 	int	n;
@@ -37,33 +37,33 @@ int	all_finished(t_shared *shared)
 	return (all);
 }
 
-int	someone_die(t_shared *shared, int i, int n)
+int	skip_done(t_shared *shared, int i, int n)
 {
-	int	finished;
+	int	fin;
 
 	pthread_mutex_lock(&shared->mtx_fin_flags);
-	finished = shared->fin_flags[i % n];
+	fin = shared->fin_flags[i % n];
 	pthread_mutex_unlock(&shared->mtx_fin_flags);
-	return (finished);
+	return (fin);
 }
 
 int	check_death(t_args *a, int n, int i)
 {
 	int				ms;
-	struct timeval	tv;
+	struct timeval	curr;
 
-	if (all_finished(a->shared))
+	if (all_done(a->shared))
 		return (1);
-	if (someone_die(a->shared, i, n))
+	if (skip_done(a->shared, i, n))
 		return (0);
 	pthread_mutex_lock(&a->shared->mtx_printf);
 	pthread_mutex_lock(&a[i % n].mtx_last_eat_ts);
-	gettimeofday(&tv, NULL);
-	ms = timestamp_ms(*(a[i % n].last_eat_ts), tv);
+	gettimeofday(&curr, NULL);
+	ms = timestamp_ms(*(a[i % n].last_eat_ts), curr);
 	if (ms > a->shared->time_to_die)
 	{
 		a->shared->is_die = 1;
-		ms = timestamp_ms(a->shared->start, tv);
+		ms = timestamp_ms(a->shared->start, curr);
 		printf("%d %d died\n", ms, a[i % n].tid + 1);
 		pthread_mutex_unlock(&a[i % n].mtx_last_eat_ts);
 		pthread_mutex_unlock(&a->shared->mtx_printf);
@@ -74,11 +74,11 @@ int	check_death(t_args *a, int n, int i)
 	return (0);
 }
 
-void	*die_worker(void *args)
+void	*monitor(void *args)
 {
-	t_args		*a;
-	int			i;
-	int			n;
+	t_args	*a;
+	int		i;
+	int		n;
 
 	a = (t_args *)args;
 	i = 0;
@@ -88,9 +88,10 @@ void	*die_worker(void *args)
 		update_priority(a);
 		if (check_death(a, n, i))
 			break ;
-		if (i++ == INT_MAX)
+		usleep(1000);
+		i++;
+		if (i == INT_MAX)
 			i = 0;
-		ft_msleep(1);
 	}
 	return (NULL);
 }

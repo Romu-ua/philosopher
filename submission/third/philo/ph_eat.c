@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   eat.c                                              :+:      :+:    :+:   */
+/*   ph_eat.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: hyamamot <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/10/12 17:25:55 by hyamamot          #+#    #+#             */
-/*   Updated: 2025/10/12 17:25:56 by hyamamot         ###   ########.fr       */
+/*   Created: 2025/10/24 19:23:49 by hyamamot          #+#    #+#             */
+/*   Updated: 2025/10/24 19:23:50 by hyamamot         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philo.h"
+#include "main.h"
 
 int	odd_take_fork(void *args)
 {
@@ -35,40 +35,34 @@ int	odd_take_fork(void *args)
 	return (0);
 }
 
-void	odd_eat(void *args)
+int	odd_eat(void *args)
 {
-	t_args			*a;
-	int				n;
+	t_args	*a;
+	int		n;
 
 	a = (t_args *)args;
 	n = a->shared->number_of_philosophers;
-	if (stop(args))
-		return ;
 	if (odd_take_fork(args))
-		return ;
-	printf_wrap("is eating", args);
-	if (stop(args))
-	{
-		pthread_mutex_unlock(&a->shared->fork[(a->tid + 1) % n]);
-		pthread_mutex_unlock(&a->shared->fork[a->tid]);
-		return ;
-	}
+		return (1);
+	if (printf_wrap("is eating", args))
+		return (1);
 	ft_msleep(a->shared->time_to_eat);
 	pthread_mutex_unlock(&a->shared->fork[(a->tid + 1) % n]);
 	pthread_mutex_unlock(&a->shared->fork[a->tid]);
+	return (0);
 }
 
 int	even_take_fork(void *args)
 {
-	t_args			*a;
-	int				n;
+	t_args	*a;
+	int		n;
 
 	a = (t_args *)args;
 	n = a->shared->number_of_philosophers;
 	pthread_mutex_lock(&a->shared->fork[(a->tid + 1) % n]);
 	if (stop(args))
 	{
-		pthread_mutex_unlock(&a->shared->fork[(a->tid + 1) % n]);
+		pthread_mutex_unlock(&a->shared->fork[a->tid]);
 		return (1);
 	}
 	pthread_mutex_lock(&a->shared->fork[a->tid]);
@@ -81,45 +75,45 @@ int	even_take_fork(void *args)
 	return (0);
 }
 
-void	even_eat(void *args)
+int	even_eat(void *args)
 {
-	t_args			*a;
-	int				n;
+	t_args	*a;
+	int		n;
 
 	a = (t_args *)args;
 	n = a->shared->number_of_philosophers;
-	if (stop(args))
-		return ;
 	if (even_take_fork(args))
-		return ;
-	printf_wrap("is eating", args);
-	if (stop(args))
-	{
-		pthread_mutex_unlock(&a->shared->fork[a->tid]);
-		pthread_mutex_unlock(&a->shared->fork[(a->tid + 1) % n]);
-		return ;
-	}
+		return (1);
+	if (printf_wrap("is eating", args))
+		return (1);
 	ft_msleep(a->shared->time_to_eat);
 	pthread_mutex_unlock(&a->shared->fork[a->tid]);
 	pthread_mutex_unlock(&a->shared->fork[(a->tid + 1) % n]);
+	return (0);
 }
 
-void	eat(void *args)
+int	ph_eat(void *args)
 {
-	t_args			*a;
-	int				n;
+	t_args	*a;
+	int		n;
 
 	a = (t_args *)args;
 	if (a->tid % 2)
-		odd_eat(args);
+	{
+		if (odd_eat(args))
+			return (1);
+	}
 	else
-		even_eat(args);
+	{
+		if (even_eat(args))
+			return (1);
+	}
 	n = a->shared->number_of_philosophers;
-	if (n % 2 == 1)
+	if (n % 2)
 	{
 		pthread_mutex_lock(&a->shared->mtx_blocked);
 		a->shared->blocked_tid = a->tid;
 		pthread_mutex_unlock(&a->shared->mtx_blocked);
 	}
-	return ;
+	return (0);
 }
