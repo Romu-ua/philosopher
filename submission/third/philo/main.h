@@ -19,7 +19,6 @@
 # include <stdlib.h>
 # include <time.h>
 # include <string.h>
-
 # include <pthread.h>
 # include <sys/time.h>
 # include <unistd.h>
@@ -63,45 +62,25 @@ typedef struct s_urgent
 	int				ms;
 }	t_urgent;
 
-// input_check.c
 int			input_check(int argc, char **argv);
-
-// shared_init.c
 t_shared	*shared_init(int argc, char **argv, int *is_miss_init);
-
-// th_init.c
 pthread_t	*th_init(t_shared *shared, int *is_miss_init);
-
-// args_init.c
 t_args		*args_init(t_shared *shared, int *is_miss_init);
-
-// make_thread.c
 void		make_thread(t_args *args, pthread_t *th, t_shared *shared);
-
-// destroy.c
 void		destory(t_args *args, pthread_t *th);
-
-// utils.c
 int			timestamp_ms(struct timeval start, struct timeval curr);
 void		ft_msleep(int ms);
-
-// worker.c
 void		*worker(void *args);
-
-// monitor.c
 void		*monitor(void *args);
 void		update_priority(t_args *a);
 int			stop(void *args);
 int			printf_wrap(char *str, void *args);
-
 char		*ft_itoa(int n);
 int			ft_atoi(const char *nptr);
-
 int			ph_think(void *args);
 int			odd_case(void *args);
 int			ph_eat(void *args);
 int			ph_sleep(void *args);
-
 char		*ft_strdup(const char *s);
 size_t		ft_strlen(const char *s);
 int			stop(void *args);
