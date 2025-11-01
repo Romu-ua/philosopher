@@ -26,6 +26,36 @@ void	args_free(t_args *args, int n)
 	}
 }
 
+void	safe_destroy(pthread_mutex_t *mtx)
+{
+	if (mtx)
+		pthread_mutex_destroy(mtx);
+}
+
+void	shared_free(t_shared *shared)
+{
+	int	i;
+	int	n;
+
+	if (!shared)
+		return ;
+	safe_destroy(&shared->mtx_printf);
+	safe_destroy(&shared->mtx_fin_flags);
+	safe_destroy(&shared->mtx_blocked);
+	safe_destroy(&shared->mtx_urgent);
+	if (shared->fork)
+	{
+		n = shared->number_of_philosophers;
+		i = 0;
+		while (i < n)
+			safe_destroy(&shared->fork[i++]);
+		free(shared->fork);
+	}
+	if (shared->fin_flags)
+		free(shared->fin_flags);
+	free(shared);
+}
+
 void	destory(t_args *args, pthread_t *th)
 {
 	t_shared	*shared;
@@ -38,6 +68,13 @@ void	destory(t_args *args, pthread_t *th)
 		return ;
 	}
 	shared = args->shared;
-	n = shared->number_of_philosophers;
+	if (shared)
+		n = shared->number_of_philosophers;
+	else
+		n = 0;
 	args_free(args, n);
+	free(args);
+	shared_free(shared);
+	if (th)
+		free(th);
 }
